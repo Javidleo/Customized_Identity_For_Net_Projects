@@ -12,7 +12,9 @@ namespace Identity
 
             services.AddApplicationServices(configuration);
 
-            services.AddTokenServices(configuration):
+            services.AddTokenServices(configuration);
+
+            return services;
         }
 
     }

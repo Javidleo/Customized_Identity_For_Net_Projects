@@ -16,9 +16,6 @@ namespace Identity.Models
         [DataType(DataType.Date)]
         public DateTime? ToDate { get; set; }
 
-        public virtual AppUser User { get; set; }
-        public virtual AppRole Role { get; set; }
-
         private AppUserRole(int roleId, int userId, DateTime fromDate, DateTime? toDate)
         {
             RoleId = roleId;

@@ -8,12 +8,8 @@ namespace Identity.DataSource.Mapping
     {
         public void Configure(EntityTypeBuilder<AppUserClaim> builder)
         {
-            builder.ToTable("AspNetUserClaim", "scrty");
 
             builder.Property(i => i.ClaimType).HasMaxLength(200);
-            builder.HasOne(i => i.User)
-                .WithMany(i => i.Claims)
-                .HasForeignKey(i => i.UserId);
         }
     }
 }

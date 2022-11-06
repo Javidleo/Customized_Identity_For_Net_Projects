@@ -19,11 +19,6 @@ namespace Identity.Models
 
         public bool? Gender { get; set; }
 
-        public virtual ICollection<AppUserRole> UserRoles { get; set; } = new List<AppUserRole>();
-        public virtual ICollection<AppUserLogin> Logins { get; set; } = new List<AppUserLogin>();
-
-        public virtual ICollection<AppUserClaim> Claims { get; set; } = new List<AppUserClaim>();
-
 
         // ///////////////   Help Desk Constractor
         public AppUser(string firstName, string lastName, string userName, string phoneNumber, string email, string nationalCode)

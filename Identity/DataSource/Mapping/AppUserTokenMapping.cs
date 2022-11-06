@@ -8,7 +8,6 @@ namespace Identity.DataSource.Mapping
     {
         public void Configure(EntityTypeBuilder<AppUserTokens> builder)
         {
-            builder.ToTable("AspNetUserToken", "scrty");
 
             builder.Property(i => i.LoginProvider).HasMaxLength(50);
 

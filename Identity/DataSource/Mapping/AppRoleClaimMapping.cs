@@ -8,10 +8,7 @@ namespace Identity.DataSource.Mapping
     {
         public void Configure(EntityTypeBuilder<AppRoleClaim> builder)
         {
-            builder.ToTable("AspNetRoleClaim", "scrty");
             builder.Property(i => i.ClaimType).HasMaxLength(200);
-
-
         }
     }
 }

@@ -8,18 +8,7 @@ namespace Identity.DataSource.Mapping
     {
         public void Configure(EntityTypeBuilder<AppUserRole> builder)
         {
-            builder.ToTable("AspNetUserRole", "scrty");
-
             builder.HasKey(i => new { i.UserId, i.RoleId, i.FromDate });
-
-            builder
-                .HasOne(i => i.Role)
-                .WithMany(i => i.UserRoles)
-                .HasForeignKey(i => i.RoleId);
-
-            builder.HasOne(i => i.User)
-                   .WithMany(i => i.UserRoles)
-                   .HasForeignKey(i => i.UserId);
         }
     }
 }

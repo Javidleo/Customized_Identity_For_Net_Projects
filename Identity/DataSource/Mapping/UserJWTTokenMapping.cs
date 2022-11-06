@@ -8,7 +8,6 @@ namespace Identity.DataSource.Mapping
     {
         public void Configure(EntityTypeBuilder<UserJWTToken> builder)
         {
-            builder.ToTable("UserJWTToken", "scrty");
             builder.HasKey(i => i.jwt_Id);
 
             builder.Property(i => i.usr_guid).IsRequired();

@@ -8,11 +8,11 @@ namespace Identity.DataSource.Mapping
     {
         public void Configure(EntityTypeBuilder<AppUser> builder)
         {
-            builder.ToTable("AspNetUser", "scrty");
 
             builder.HasKey(i => i.Id);
 
-            builder.Property(i => i.Guid).ValueGeneratedOnAdd();
+            builder.Property(i => i.Guid).ValueGeneratedOnAdd(); 
+
             builder.Property(i => i.FirstName).IsRequired(false).HasMaxLength(100);
             builder.Property(i => i.LastName).IsRequired(false).HasMaxLength(100);
             builder.Property(i => i.NationalCode).IsRequired(false).HasMaxLength(10);
@@ -26,7 +26,6 @@ namespace Identity.DataSource.Mapping
             builder.Property(i => i.LockoutEnd).IsRequired(false);
             builder.Property(i => i.BirthDate).IsRequired(false);
             builder.Property(i => i.Gender).IsRequired(false);
-            builder.HasIndex(i => i.Guid).IsUnique();
 
         }
     }

@@ -8,7 +8,6 @@ namespace Identity.DataSource.Mapping
     {
         public void Configure(EntityTypeBuilder<AppRole> builder)
         {
-            builder.ToTable("AspNetRole", "scrty");
 
             builder.Property(i => i.Description).HasMaxLength(1000);
             builder.Property(i => i.ConcurrencyStamp).HasMaxLength(50);
