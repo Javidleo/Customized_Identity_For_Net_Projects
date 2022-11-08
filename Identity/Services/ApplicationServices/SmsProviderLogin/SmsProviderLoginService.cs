@@ -34,7 +34,7 @@ namespace Identity.Services.ApplicationServices.SmsProviderLogin
         public async Task<(IdentityResult?, string?, bool)> Handle(string phoneNumber)
         {
             var user = await _userManager.FindByPhoneNumberAsync(phoneNumber, true);
-           
+
             if (user is null) // if a verified user doesnt exist we going to create one!
             {
                 var registrationResult = await Register(phoneNumber);
@@ -53,11 +53,11 @@ namespace Identity.Services.ApplicationServices.SmsProviderLogin
         }
 
         private async Task<(IdentityResult, string)> Register(string phoneNumber)
-        { 
+        {
             // Register Method string result is optional : if the Registration is successfull its the code
-          //                                             else it is the error message 
+            //                                             else it is the error message 
             var user = await _userManager.FindByPhoneNumberAsync(phoneNumber, false);
-            if (user is  null)
+            if (user is null)
             {
                 user = AppUser.Create(phoneNumber, phoneNumber); // in this case we got phoneNumber as UserName
                 var result = await _userManager.CreateAsync(user);
@@ -71,7 +71,7 @@ namespace Identity.Services.ApplicationServices.SmsProviderLogin
                 var token = await _userService.VerificationTokenGeneratorAsync(user, phoneNumber);
                 // SmsService.Send(phoneNumber, token); need an SMS Service
                 return (result, token);
-               
+
             }
             else
             {

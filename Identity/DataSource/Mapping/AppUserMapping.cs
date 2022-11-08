@@ -11,7 +11,7 @@ namespace Identity.DataSource.Mapping
 
             builder.HasKey(i => i.Id);
 
-            builder.Property(i => i.Guid).ValueGeneratedOnAdd(); 
+            builder.Property(i => i.Guid).ValueGeneratedOnAdd();
 
             builder.Property(i => i.FirstName).IsRequired(false).HasMaxLength(100);
             builder.Property(i => i.LastName).IsRequired(false).HasMaxLength(100);

@@ -1,5 +1,4 @@
 ﻿using Identity.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Identity.Services.ApplicationServices.ExternalProviderLogin

@@ -1,15 +1,10 @@
-﻿using Identity.Common.Exceptions;
+﻿using Identity.Common;
+using Identity.Common.Exceptions;
 using Identity.Models;
-using Identity.Services.ApplicationServices.Authentication;
-using Identity.Services.ApplicationServices.Role;
 using Identity.Services.ApplicationServices.TokenStore;
-using Identity.Services.IdentityServices.RoleManagement;
-using Identity.Services.IdentityServices.SignInManagement;
 using Identity.Services.IdentityServices.UserManagement;
-using Microsoft.AspNetCore.Http;
-using Identity.Common;
 using Identity.ViewModels;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 using System.Security.Claims;
@@ -24,7 +19,7 @@ namespace Identity.Services.ApplicationServices.User
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ITokenStoreService _tokenStoreService;
         private DbSet<AppUser> _users;
-        public UserService(IAppUserManager appUserManager, ITokenStoreService tokenStoreService,IHttpContextAccessor httpContextAccessor)
+        public UserService(IAppUserManager appUserManager, ITokenStoreService tokenStoreService, IHttpContextAccessor httpContextAccessor)
         {
             _userManager = appUserManager;
             _tokenStoreService = tokenStoreService;

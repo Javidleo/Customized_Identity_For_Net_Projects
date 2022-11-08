@@ -2,7 +2,6 @@
 using Identity.Common.Exceptions;
 using Identity.Models;
 using Identity.Services.ApplicationServices.Authentication;
-using Identity.Services.ApplicationServices.TokenFactory;
 using Identity.Services.IdentityServices.SignInManagement;
 using Identity.Services.IdentityServices.UserManagement;
 using Microsoft.AspNetCore.Identity;
@@ -78,7 +77,7 @@ namespace Identity.Services.ApplicationServices.ExternalProviderLogin
                 // adding user Login
                 await _userManager.AddLoginAsync(user, loginInfo);
                 // sign in with out password
-                await _signInManager.SignInAsync(user,false);
+                await _signInManager.SignInAsync(user, false);
                 // generate token for user
                 return await _authenticationService.GenerateToken(user);
             }
@@ -101,7 +100,7 @@ namespace Identity.Services.ApplicationServices.ExternalProviderLogin
             if (signInResult.IsNotAllowed)
                 throw new NotAcceptableException("user not allow to do this action");
 
-            if(signInResult.RequiresTwoFactor)
+            if (signInResult.RequiresTwoFactor)
             {
                 // do something about two factor authentication
             }

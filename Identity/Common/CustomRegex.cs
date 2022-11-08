@@ -1,6 +1,6 @@
 ﻿namespace Identity.Common
 {
-    public static class CustomRegex
+    public class CustomRegex
     {
         public const string Guid = "^[{]?[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}[}]?$";
 

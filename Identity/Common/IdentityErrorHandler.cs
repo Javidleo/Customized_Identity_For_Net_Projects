@@ -11,7 +11,7 @@ namespace Identity.Common
             foreach (var error in errors)
             {
                 result += error.Code + Environment.NewLine;
-                result += error.Description;
+                result += error.Description + Environment.NewLine;
             }
             return result;
         }
