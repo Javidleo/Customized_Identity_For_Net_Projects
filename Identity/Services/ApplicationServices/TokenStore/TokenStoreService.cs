@@ -51,7 +51,7 @@ namespace Identity.Services.ApplicationServices.TokenStore
 
         public async Task RevokeUserTokens(Guid? userGuid, string? refreshToken)
         {
-            if (userGuid == Guid.Empty)
+            if (userGuid != Guid.Empty)
             {
                 await InvalidateUserTokenByIdAsync(userGuid.Value);
                 return;

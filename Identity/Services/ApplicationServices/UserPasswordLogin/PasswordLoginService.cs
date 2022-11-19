@@ -3,6 +3,7 @@ using Identity.Common.Exceptions;
 using Identity.Models;
 using Identity.Services.ApplicationServices.Authentication;
 using Identity.Services.ApplicationServices.Role;
+using Identity.Services.ApplicationServices.TokenFactory;
 using Identity.Services.ApplicationServices.TokenStore;
 using Identity.Services.IdentityServices.SignInManagement;
 using Identity.Services.IdentityServices.UserManagement;
@@ -13,7 +14,7 @@ using System.Text.RegularExpressions;
 
 namespace Identity.Services.ApplicationServices.UserPasswordLogin
 {
-    public class PasswordLoginService
+    public class PasswordLoginService : IPasswordLoginService
     {
         private readonly IAppSignInManager _appSignInManger;
         private readonly IAppUserManager _userManager;
@@ -21,8 +22,10 @@ namespace Identity.Services.ApplicationServices.UserPasswordLogin
         private readonly IAuthenticationService _authenticationService;
         private readonly IRoleService _roleService;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ITokenFactoryService _tokenFactoryService;
         public PasswordLoginService(IAppSignInManager appSignInManger, IAppUserManager userManager, ITokenStoreService tokenStoreService,
-                                    IAuthenticationService authenticationService, IRoleService roleService, IHttpContextAccessor httpContextAccessor)
+                                    IAuthenticationService authenticationService, IRoleService roleService, IHttpContextAccessor httpContextAccessor,
+                                    ITokenFactoryService tokenFactoryService)
         {
             _appSignInManger = appSignInManger;
             _userManager = userManager;
@@ -30,47 +33,26 @@ namespace Identity.Services.ApplicationServices.UserPasswordLogin
             _authenticationService = authenticationService;
             _roleService = roleService;
             _httpContextAccessor = httpContextAccessor;
+            _tokenFactoryService = tokenFactoryService;
         }
 
-        public async Task<(IdentityResult, JWTTokenData, string)> HandleAsync(string userName, string Password)
+     
+        public async Task<(IdentityResult, JWTTokenData)> RegisterAsync(string firstName,string lastName,string phoneNumber,string userName,
+                                                                        string password,string nationalCode)
         {
-            var user = await _userManager.FindByNameAsync(userName);
+            var user = await _userManager.FindByEmailAsync(userName);
             if (user is not null)
+                throw new ConflictException("this email used before by another user");
+
+            user = AppUser.Create(firstName, lastName, userName, phoneNumber, userName, nationalCode);
+
+            var result = await _userManager.CreateAsync(user, password);
+            await _roleService.AddUserRoleAsync("Customer", user.UserName);
+            if(result.Succeeded)
             {
-                if (user.EmailConfirmed == false)
-                {
-                    // sending Email to user email again and let it know we are waiting for verify email
-
-                    return (IdentityResult.Success, null, "Please verify your Email Address");
-                }
-                var token = await _authenticationService.GenerateToken(user);
-                if (token is null)
-                    throw new NotAcceptableException("invalid token");
-
-                return (IdentityResult.Success, token, "You Already Have an Account");
+                var token = await _tokenFactoryService.CreateJwtTokenAsync(user);
+                return (IdentityResult.Success, token);
             }
-            else
-            {
-                var registerResult = await RegisterAsync(userName, Password);
-
-                return (registerResult.Item1, registerResult.Item2, "successfully registerd");
-            }
-
-        }
-
-        public async Task<(IdentityResult, JWTTokenData)> RegisterAsync(string userName, string password)
-        {
-            //var user = AppUser.Create(userName);
-            //var result = await _userManager.CreateAsync(user, password);
-            //if (result.Errors.Any())
-            //    return (result, null);
-
-            //var userRoleAssignment = await _roleService.SetUserRole("Customer", user.Id);
-            //if(userRoleAssignment.Succeeded)
-            //{
-            //    var token = await _authenticationService.GenerateTokenAsync(user);
-            //    return (IdentityResult.Success, token);
-            //}
             return (IdentityResult.Failed(), null);
         }
         public async Task<JWTTokenData> LoginAsync(string userName, string password)

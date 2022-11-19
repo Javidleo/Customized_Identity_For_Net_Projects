@@ -36,6 +36,20 @@ namespace Identity.Services.ApplicationServices.Role
             }
         }
 
+        public async Task<IdentityResult> AddUserRoleAsync(string roleName,string userName)
+        {
+            var role = await _roleManager.FindByNameAsync(roleName);
+            if (role is null)
+                throw new NotFoundException("role notfound");
+
+            var user = await _userManager.FindByNameAsync(userName);
+            if (user is null)
+                throw new NotFoundException("user notfound");
+
+            var result = await _userManager.AddUserRoleAsync(role.Id, user.Id, DateTime.Now, DateTime.MaxValue);
+            return result;
+        }
+
         public async Task<IdentityResult> AddUserRoleAsync(string roleName, int userId, DateTime fromDate)
         {
             var role = await _roleManager.FindByNameAsync(roleName);

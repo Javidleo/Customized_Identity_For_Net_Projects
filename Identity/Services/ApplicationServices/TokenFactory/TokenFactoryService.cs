@@ -35,73 +35,68 @@ public class TokenFactoryService : ITokenFactoryService
         };
     }
 
+
+    #region Create Access Token
     private async Task<(string, IEnumerable<Claim>)> CreateAccessTokenAsync(AppUser user)
     {
-        try
+        var authSignInKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration.Value.Key));
+
+        var userRoleList = await _userManager.GetRolesAsync(user);
+
+        var userClaims = SetAccessTokenClaims(user);
+
+        foreach (var userRole in userRoleList)
+            userClaims.Add(new Claim(ClaimTypes.Role, userRole, ClaimValueTypes.String, _configuration.Value.Issuer));
+
+        var descriptor = SetTokenDescription(userClaims, authSignInKey);
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var securityToke = tokenHandler.CreateToken(descriptor);
+        string encryptedJwtToken = tokenHandler.WriteToken(securityToke);
+
+        return (encryptedJwtToken, userClaims);
+    }
+    private List<Claim> SetAccessTokenClaims(AppUser user)
+    {
+        var userClaims = new List<Claim>
         {
-            var authSignInKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration.Value.Key));
+            // User Id Claim
+            new Claim(JwtRegisteredClaimNames.NameId, user.Guid.ToString(), ClaimValueTypes.String, _configuration.Value.Issuer),
 
-            var userClaims = new List<Claim>
-                {
-                    // User Id Claim
-                    new Claim(JwtRegisteredClaimNames.NameId, user.Guid.ToString(), ClaimValueTypes.String, _configuration.Value.Issuer),
+            // UserName Claim
+            new Claim(JwtRegisteredClaimNames.Name , user.UserName, _configuration.Value.Issuer),
+            //// Token Id Claim
+            new Claim(JwtRegisteredClaimNames.Jti, SecurityService.CreateSecureGuid().ToString(),
+                  ClaimValueTypes.String,_configuration.Value.Issuer),
+        };
 
-                    // UserName Claim
-                    new Claim(JwtRegisteredClaimNames.Name , user.UserName, _configuration.Value.Issuer),
-                    //// Token Id Claim
-                    new Claim(JwtRegisteredClaimNames.Jti, SecurityService.CreateSecureGuid().ToString(),
-                          ClaimValueTypes.String,_configuration.Value.Issuer),
-                };
-
-            var userRoleList = await _userManager.GetRolesAsync(user);
-
-            foreach (var userRole in userRoleList)
-            {
-                userClaims.Add(new Claim(ClaimTypes.Role, userRole, ClaimValueTypes.String, _configuration.Value.Issuer));
-            }
-
-            var now = DateTime.UtcNow;
-
-            var descriptor = new SecurityTokenDescriptor
-            {
-                Issuer = _configuration.Value.Issuer,
-                Audience = _configuration.Value.Audience,
-                IssuedAt = now,
-                NotBefore = now,
-                Expires = now.AddMinutes(_configuration.Value.AccessTokenExpirationMinutes),
-                Subject = new ClaimsIdentity(userClaims),
-                SigningCredentials = new SigningCredentials(authSignInKey, SecurityAlgorithms.Sha256),
-            };
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var securityToke = tokenHandler.CreateToken(descriptor);
-            string encryptedJwtToken = tokenHandler.WriteToken(securityToke);
-
-            return (encryptedJwtToken, userClaims);
-        }
-        catch (Exception)
-        {
-
-            throw;
-        }
+        return userClaims;
     }
 
+    private SecurityTokenDescriptor SetTokenDescription(List<Claim> userClaims, SymmetricSecurityKey key)
+    {
+        var now = DateTime.UtcNow;
+
+        var descriptor = new SecurityTokenDescriptor
+        {
+            Issuer = _configuration.Value.Issuer,
+            Audience = _configuration.Value.Audience,
+            IssuedAt = now,
+            NotBefore = now,
+            Expires = now.AddMinutes(_configuration.Value.AccessTokenExpirationMinutes),
+            Subject = new ClaimsIdentity(userClaims),
+            SigningCredentials = new SigningCredentials(key, SecurityAlgorithms.Sha256),
+        };
+
+        return descriptor;
+    }
+    #endregion
+
+
+    #region Create RefreshToken
     private Task<string> CreateRefreshTokenAsync()
     {
-        var claims = new List<Claim>()
-            {
-                // Id
-                new Claim(JwtRegisteredClaimNames.Jti, SecurityService.CreateSecureGuid().ToString(),
-                ClaimValueTypes.String,_configuration.Value.Issuer),
-
-                //Issuer
-                new Claim(JwtRegisteredClaimNames.Iss, _configuration.Value.Issuer,
-                            ClaimValueTypes.String, _configuration.Value.Issuer),
-
-                // Issued at
-                new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(),
-                ClaimValueTypes.Integer64, _configuration.Value.Issuer),
-            };
+        var claims = SetRefreshTokenClaims();
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.Value.Key));
 
@@ -117,4 +112,26 @@ public class TokenFactoryService : ITokenFactoryService
         var refreshTokenValue = new JwtSecurityTokenHandler().WriteToken(token);
         return Task.FromResult(refreshTokenValue);
     }
+
+    private List<Claim> SetRefreshTokenClaims()
+    {
+        return new List<Claim>()
+        {
+            // Id
+            new Claim(JwtRegisteredClaimNames.Jti, SecurityService.CreateSecureGuid().ToString(),
+            ClaimValueTypes.String,_configuration.Value.Issuer),
+
+            //Issuer
+            new Claim(JwtRegisteredClaimNames.Iss, _configuration.Value.Issuer,
+                        ClaimValueTypes.String, _configuration.Value.Issuer),
+
+            // Issued at
+            new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(),
+            ClaimValueTypes.Integer64, _configuration.Value.Issuer),
+        };
+    }
+
+    #endregion
+
+
 }

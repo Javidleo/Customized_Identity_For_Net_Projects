@@ -12,6 +12,8 @@ namespace Identity.Services.ApplicationServices.Role
         Task<List<RoleListViewModel>> GetAllRoles();
         #endregion
         #region User Role
+
+        Task<IdentityResult> AddUserRoleAsync(string roleName, string userName);
         Task<IdentityResult> AddUserRoleAsync(string roleName, int userId, DateTime fromDate, DateTime? toDate);
 
         Task<IdentityResult> AddUserRoleAsync(string roleName, int userId, DateTime fromDate);
